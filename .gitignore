@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets
+.env
+
+# DuckDB
+*.duckdb
+data/
+
+# OS junk
+Thumbs.db
+.DS_Store
