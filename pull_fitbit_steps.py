@@ -153,23 +153,30 @@ def save_token_cache(token: dict[str, Any]) -> None:
 
 
 def seed_refresh_token_from_env_if_needed() -> None:
-    """
-    If token cache doesn't exist, seed it from .env refresh token.
-    """
-    if TOKEN_CACHE_PATH.exists():
+    refresh_env = require_env("FITBIT_REFRESH_TOKEN")
+
+    # If no cache, seed it
+    if not TOKEN_CACHE_PATH.exists():
+        save_token_cache({
+            "refresh_token": refresh_env,
+            "access_token": None,
+            "user_id": os.getenv("FITBIT_USER_ID"),
+            "expires_at_utc": None,
+            "seeded_at_utc": dt_to_iso(utc_now()),
+            "note": "Seeded from .env. Will rotate on first refresh.",
+        })
         return
 
-    refresh = require_env("FITBIT_REFRESH_TOKEN")
-    seed = {
-        "refresh_token": refresh,
-        "access_token": None,
-        "user_id": os.getenv("FITBIT_USER_ID"),
-        "expires_at_utc": None,
-        "seeded_at_utc": dt_to_iso(utc_now()),
-        "note": "Seeded from .env FITBIT_REFRESH_TOKEN. Token will rotate on first refresh.",
-    }
-    save_token_cache(seed)
+    cache = load_token_cache() or {}
 
+    # If cache refresh token differs from .env, reseed cache and force refresh next call
+    if cache.get("refresh_token") != refresh_env:
+        cache["refresh_token"] = refresh_env
+        cache["access_token"] = None
+        cache["expires_at_utc"] = None
+        cache["reseeded_at_utc"] = dt_to_iso(utc_now())
+        cache["note"] = "Refresh token updated from .env (re-bootstrap detected)."
+        save_token_cache(cache)
 
 # ----------------------------
 # OAuth refresh
