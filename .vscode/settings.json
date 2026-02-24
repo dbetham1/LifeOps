@@ -8,9 +8,10 @@
         {
             "alias": "lifeops",
             "type": "file",
-            "path": "c:\\Users\\dbeth\\Projects\\LifeOps\\lifeops.duckdb",
+            "path": "c:\\Users\\dbeth\\Projects\\LifeOps\\data\\lifeops.duckdb",
+            "readOnly": true,
             "attached": true
         }
     ],
-    "duckdb.defaultDatabase": "lifeops"
+    "duckdb.defaultDatabase": "memory"
 }
